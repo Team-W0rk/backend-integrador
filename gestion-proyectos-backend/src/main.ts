@@ -24,8 +24,11 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
-  app.enableCors();
+  //Habilitar CORS
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    credentials: true,
+  });
 
   // Prefijo global
   app.setGlobalPrefix('api');
