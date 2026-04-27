@@ -23,7 +23,7 @@ Desarrollado con **NestJS**, **TypeORM** y **PostgreSQL**.
 ## Requisitos previos
 
 - Node.js 18 o superior
-- MySQL 8.0
+- PostgreSQL
 - npm
 
 ---
