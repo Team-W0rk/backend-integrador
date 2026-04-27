@@ -208,19 +208,6 @@ src/
 
 ---
 
-## Funcionalidades adicionales implementadas
-
-- **Historial de cambios** — cada modificación queda registrada con usuario y fecha
-- **Roles** — `admin` y `usuario` con restricciones en operaciones sensibles
-- **Búsqueda avanzada** — filtros por nombre, estado y cliente con paginación y ordenamiento
-- **Exportación CSV** — descarga de proyectos y clientes en formato CSV
-- **Estadísticas** — métricas de proyectos, tareas y clientes
-- **Fecha de finalización** — cada proyecto puede tener fecha objetivo con indicador de retraso
-- **Contactos de clientes** — teléfonos y emails asociados a cada cliente
-- **Metas intermedias** — hitos dentro de un proyecto con tareas asociadas
-
----
-
 ## Scripts disponibles
 
 ```bash
