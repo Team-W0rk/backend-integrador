@@ -9,8 +9,19 @@ import { Logger } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Middlewares globales
-  app.use(helmet());
+  // Middlewares globales (CSP permisiva para que cargue Swagger UI en /docs)
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: [`'self'`],
+          styleSrc: [`'self'`, `'unsafe-inline'`],
+          scriptSrc: [`'self'`, `'unsafe-inline'`],
+          imgSrc: [`'self'`, 'data:', 'https:'],
+        },
+      },
+    }),
+  );
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   app.use(compression());
   //express-rate-limit no usamos, lo administra nginx Server
@@ -32,8 +43,7 @@ async function bootstrap() {
   app.enableCors();
   app.setGlobalPrefix('api');
 
-  // Swagger
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('Gestión de Proyectos API')
     .setDescription(
       'API del sistema de gestión de proyectos — Trabajo Final Integrador',
@@ -45,8 +55,9 @@ async function bootstrap() {
     )
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  // Sin prefijo global: la UI queda en /docs (los endpoints de la API siguen en /api/...).
+  SwaggerModule.setup('docs', app, swaggerDocument);
 
   const port = process.env.PORT || 3000;
   // En Arch debo cambiar localhost por 0.0.0.0

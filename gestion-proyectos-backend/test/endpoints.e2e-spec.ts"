@@ -1,0 +1,111 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from './../src/app.module';
+
+describe('Flujo completo de Endpoints (e2e)', () => {
+  let app: INestApplication;
+  let jwtToken: string;
+  let idProyectoCreado: number;
+
+  beforeAll(async () => {
+    console.log('\n--- [INICIO] Configurando módulo de pruebas ---');
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api'); 
+    await app.init();
+    console.log('--- [OK] Aplicación NestJS iniciada ---\n');
+  });
+
+  afterAll(async () => {
+    await app.close();
+    console.log('\n--- [FIN] Conexiones cerradas ---');
+  });
+
+  it('1. POST /api/auth/login - Debería iniciar sesión y obtener token', async () => {
+    console.log('>> Ejecutando: POST /api/auth/login');
+    const response = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ username: 'admin', password: 'admin123' });
+      
+    expect([200, 201]).toContain(response.status);
+    jwtToken = response.body.access_token || response.body.token;
+    
+    console.log(`   [STATUS]: ${response.status}`);
+    console.log(`   [TOKEN]: ${jwtToken ? 'Recibido correctamente' : 'ERROR: No recibido'}`);
+    
+    expect(jwtToken).toBeDefined();
+  });
+
+  it('2. GET /api/clientes - Debería listar clientes con el token JWT', async () => {
+    console.log('\n>> Ejecutando: GET /api/clientes');
+    const response = await request(app.getHttpServer())
+      .get('/api/clientes')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .expect(200);
+
+    console.log(`   [STATUS]: ${response.status}`);
+    console.log(`   [CLIENTES ENCONTRADOS]: ${response.body.length}`);
+    
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
+  });
+
+  it('3. POST /api/proyectos - Debería crear un proyecto nuevo', async () => {
+    console.log('\n>> Ejecutando: POST /api/proyectos');
+    const nombreProyecto = 'Proyecto E2E ' + Date.now();
+    
+    const response = await request(app.getHttpServer())
+      .post('/api/proyectos')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({
+        nombre: nombreProyecto,
+        estado: 'ACTIVO',
+        id_cliente: 1 
+      });
+
+    expect([200, 201]).toContain(response.status);
+    idProyectoCreado = response.body.id; 
+    
+    console.log(`   [STATUS]: ${response.status}`);
+    console.log(`   [ID PROYECTO CREADO]: ${idProyectoCreado}`);
+    
+    expect(idProyectoCreado).toBeDefined();
+  });
+
+  it('4. POST /api/proyectos/:id/tareas - Debería agregar una tarea al proyecto', async () => {
+    console.log(`\n>> Ejecutando: POST /api/proyectos/${idProyectoCreado}/tareas`);
+    const response = await request(app.getHttpServer())
+      .post(`/api/proyectos/${idProyectoCreado}/tareas`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({
+        descripcion: 'Configurar servidor para E2E',
+        estado: 'PENDIENTE'
+      });
+
+    console.log(`   [STATUS]: ${response.status}`);
+    console.log(`   [ID TAREA CREADA]: ${response.body.id}`);
+
+    expect([200, 201]).toContain(response.status);
+    expect(response.body.id).toBeDefined();
+  });
+
+  it('5. GET /api/proyectos/:id/tareas - Debería listar las tareas del proyecto', async () => {
+    console.log(`\n>> Ejecutando: GET /api/proyectos/${idProyectoCreado}/tareas`);
+    const response = await request(app.getHttpServer())
+      .get(`/api/proyectos/${idProyectoCreado}/tareas`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .expect(200);
+
+    console.log(`   [STATUS]: ${response.status}`);
+    console.log(`   [TAREAS ENCONTRADAS]: ${response.body.length}`);
+    console.log(`   [DESCRIPCION TAREA]: ${response.body[0]?.descripcion}`);
+
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
+    expect(response.body[0].descripcion).toBe('Configurar servidor para E2E');
+  });
+});
