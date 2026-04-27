@@ -15,6 +15,12 @@ async function bootstrap() {
   app.use(compression());
   //express-rate-limit no usamos, lo administra nginx Server
 
+  //Habilitar CORS
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    credentials: true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
