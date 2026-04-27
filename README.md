@@ -71,6 +71,21 @@ npm run start:dev
 
 El servidor queda disponible en `http://localhost:3000`.
 
+## Ejecutar con PM2
+
+```bash
+npm install
+cp .env.example .env
+
+npm run build
+npm run start:pm2
+```
+
+## Acceso
+
+http://localhost
+http://localhost/docs
+
 ---
 
 ## Primer uso
