@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,8 +34,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(3000);
-  console.log('Backend corriendo en http://localhost:3000');
-  console.log('Swagger disponible en http://localhost:3000/docs');
+  const port = process.env.PORT || 3000;
+
+  await app.listen(port, 'localhost');
+
+  const logger = new Logger('Bootstrap');
+
+  logger.log(`🚀 Backend corriendo en http://localhost:${port}`);
+  logger.log(`📚 Swagger disponible en http://localhost:${port}/docs`);
 }
 bootstrap();

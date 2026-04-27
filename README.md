@@ -2,7 +2,7 @@
 
 Backend del sistema de gestión de proyectos desarrollado como Trabajo Final Integrador de la **Tecnicatura Universitaria en Desarrollo Web — UNER**.
 
-Desarrollado con **NestJS**, **TypeORM** y **MySQL**.
+Desarrollado con **NestJS**, **TypeORM** y **PostgreSQL**.
 
 ---
 
@@ -12,7 +12,7 @@ Desarrollado con **NestJS**, **TypeORM** y **MySQL**.
 |---|---|---|
 | NestJS | ^10 | Framework principal |
 | TypeORM | ^0.3 | ORM para base de datos |
-| MySQL | 8.0 | Base de datos |
+| PostgreSQL | 14+ | Base de datos |
 | JWT + Passport | — | Autenticación |
 | Swagger | ^7 | Documentación de API |
 | Compodoc | ^1.1 | Documentación del código |
