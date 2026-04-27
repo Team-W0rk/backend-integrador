@@ -1,7 +1,7 @@
 import helmet from 'helmet'; // Van a nivel Global
-import * as compression from 'compression'; // Van a nivel Global
+import compression from 'compression'; // Van a nivel Global
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
+import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from '@nestjs/common';
