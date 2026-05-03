@@ -48,7 +48,7 @@ export class AuthService {
 
     return this.usuariosService.create({
       username: dto.username,
-      password: hashedPassword,
+      password: dto.password,
       rol: RolUsuario.ADMIN,
     });
   }
