@@ -1,0 +1,68 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateClienteDto } from './dto/create-cliente.dto';
+import { UpdateClienteDto } from './dto/update-cliente.dto';
+import { EstadoCliente } from '../../common/enums/estado.enum';
+import { Cliente } from './entities/clientes.entity';
+
+@Injectable()
+export class ClientesService {
+  constructor(
+    @InjectRepository(Cliente)
+    private readonly clientesRepo: Repository<Cliente>,
+  ) {}
+
+  async findAll(): Promise<Cliente[]> {
+    return this.clientesRepo.find({ relations: ['proyectos'] });
+  }
+
+  async findActivos(): Promise<Cliente[]> {
+    return this.clientesRepo.find({
+      where: { estado: EstadoCliente.ACTIVO },
+    });
+  }
+
+  async findOne(id: number): Promise<Cliente> {
+    const cliente = await this.clientesRepo.findOne({
+      where: { id },
+      relations: ['proyectos'],
+    });
+    if (!cliente) throw new NotFoundException(`Cliente ${id} no encontrado`);
+    return cliente;
+  }
+
+  async create(dto: CreateClienteDto): Promise<Cliente> {
+    const cliente = this.clientesRepo.create(dto);
+    return this.clientesRepo.save(cliente);
+  }
+
+  async update(id: number, dto: UpdateClienteDto): Promise<Cliente> {
+    const cliente = await this.findOne(id);
+    Object.assign(cliente, dto);
+    return this.clientesRepo.save(cliente);
+  }
+
+  async darBaja(id: number): Promise<Cliente> {
+    const cliente = await this.clientesRepo.findOne({
+      where: { id },
+      relations: ['proyectos'],
+    });
+    if (!cliente) throw new NotFoundException(`Cliente ${id} no encontrado`);
+
+    // Verificar que no esté en ningún proyecto
+    const tieneProyectos = cliente.proyectos && cliente.proyectos.length > 0;
+    if (tieneProyectos) {
+      throw new BadRequestException(
+        'No se puede dar de baja un cliente que tiene proyectos asociados',
+      );
+    }
+
+    cliente.estado = EstadoCliente.BAJA;
+    return this.clientesRepo.save(cliente);
+  }
+}

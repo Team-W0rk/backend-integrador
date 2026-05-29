@@ -1,7 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { UsuariosService } from '../usuarios/usuarios.service';
 import { LoginDto } from './dto/login.dto';
+import { EstadoUsuario, RolUsuario } from '../../common/enums/estado.enum';
 import { SeedAdminDto } from './dto/seed-admin.dto';
 
 @Injectable()
@@ -44,11 +46,9 @@ export class AuthService {
       throw new Error('El admin ya existe');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
     return this.usuariosService.create({
       username: dto.username,
-      password: hashedPassword,
+      password: dto.password,
       rol: RolUsuario.ADMIN,
     });
   }

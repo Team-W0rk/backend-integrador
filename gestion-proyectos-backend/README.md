@@ -2,7 +2,7 @@
 
 Backend del sistema de gestión de proyectos desarrollado como Trabajo Final Integrador de la **Tecnicatura Universitaria en Desarrollo Web — UNER**.
 
-Desarrollado con **NestJS**, **TypeORM** y **PostgreSQL**.
+Desarrollado con **NestJS**, **TypeORM** y **MySQL**.
 
 ---
 
@@ -12,7 +12,7 @@ Desarrollado con **NestJS**, **TypeORM** y **PostgreSQL**.
 |---|---|---|
 | NestJS | ^10 | Framework principal |
 | TypeORM | ^0.3 | ORM para base de datos |
-| PostgreSQL | 14+ | Base de datos |
+| MySQL | 8.0 | Base de datos |
 | JWT + Passport | — | Autenticación |
 | Swagger | ^7 | Documentación de API |
 | Compodoc | ^1.1 | Documentación del código |
@@ -23,7 +23,7 @@ Desarrollado con **NestJS**, **TypeORM** y **PostgreSQL**.
 ## Requisitos previos
 
 - Node.js 18 o superior
-- PostgreSQL
+- MySQL 8.0
 - npm
 
 ---
@@ -55,9 +55,9 @@ Crear un archivo `.env` en la raíz del proyecto:
 
 ```env
 DB_HOST=localhost
-DB_PORT=tu_puerto_de_base_de_datos
-DB_USER=tu_usuario_de_base_de_datos
-DB_PASS=tu_contraseña_de_base_de_datos
+DB_PORT=port
+DB_USER=tu_user
+DB_PASS=tu_password
 DB_NAME=gestion_proyectos
 
 JWT_SECRET=un_string_largo_y_secreto
@@ -70,21 +70,6 @@ npm run start:dev
 ```
 
 El servidor queda disponible en `http://localhost:3000`.
-
-## Ejecutar con PM2
-
-```bash
-npm install
-cp .env.example .env
-
-npm run build
-npm run start:pm2
-```
-
-## Acceso
-
-http://localhost
-http://localhost/docs
 
 ---
 
@@ -152,6 +137,12 @@ src/
 │   ├── tareas/                   # Gestión de tareas
 │   │   ├── entities/
 │   │   └── dto/
+│   ├── metas/                    # Metas intermedias de proyectos
+│   │   ├── entities/
+│   │   └── dto/
+│   ├── historial/                # Historial de cambios
+│   │   └── entities/
+│   ├── estadisticas/             # Métricas y reportes
 │   └── common/                   # Enums, guards y decoradores compartidos
 │       ├── enums/
 │       ├── guards/
@@ -212,7 +203,31 @@ src/
 | PATCH | `/api/proyectos/:id/tareas/:tareaId` | Modificar tarea | Sí |
 | DELETE | `/api/proyectos/:id/tareas/:tareaId` | Eliminar tarea (solo ADMIN) | Sí |
 
---
+### Metas intermedias
+| Método | Ruta | Descripción | Auth |
+|---|---|---|---|
+| GET | `/api/proyectos/:id/metas` | Listar metas del proyecto | Sí |
+| POST | `/api/proyectos/:id/metas` | Crear meta | Sí |
+| PATCH | `/api/proyectos/:id/metas/:metaId` | Modificar meta | Sí |
+| DELETE | `/api/proyectos/:id/metas/:metaId` | Eliminar meta | Sí |
+| POST | `/api/proyectos/:id/metas/:metaId/tareas/:tareaId` | Asignar tarea a meta | Sí |
+| DELETE | `/api/proyectos/:id/metas/:metaId/tareas/:tareaId` | Quitar tarea de meta | Sí |
+
+### Estadísticas
+| Método | Ruta | Descripción | Auth |
+|---|---|---|---|
+| GET | `/api/estadisticas/resumen` | Métricas generales | Sí |
+| GET | `/api/estadisticas/proyectos-por-cliente` | Proyectos agrupados por cliente | Sí |
+| GET | `/api/estadisticas/tareas-por-proyecto` | Tareas por proyecto | Sí |
+| GET | `/api/estadisticas/proyectos-retrasados` | Proyectos fuera de fecha | Sí |
+
+### Historial
+| Método | Ruta | Descripción | Auth |
+|---|---|---|---|
+| GET | `/api/historial` | Últimos 200 cambios | Sí |
+| GET | `/api/historial/:entidad/:id` | Historial de un registro | Sí |
+
+---
 
 ## Roles de usuario
 
@@ -220,6 +235,19 @@ src/
 |---|---|
 | `admin` | Acceso completo. Puede dar de baja proyectos, clientes y eliminar tareas. |
 | `usuario` | Acceso estándar. Puede crear y modificar, pero no dar de baja ni eliminar. |
+
+---
+
+## Funcionalidades adicionales implementadas
+
+- **Historial de cambios** — cada modificación queda registrada con usuario y fecha
+- **Roles** — `admin` y `usuario` con restricciones en operaciones sensibles
+- **Búsqueda avanzada** — filtros por nombre, estado y cliente con paginación y ordenamiento
+- **Exportación CSV** — descarga de proyectos y clientes en formato CSV
+- **Estadísticas** — métricas de proyectos, tareas y clientes
+- **Fecha de finalización** — cada proyecto puede tener fecha objetivo con indicador de retraso
+- **Contactos de clientes** — teléfonos y emails asociados a cada cliente
+- **Metas intermedias** — hitos dentro de un proyecto con tareas asociadas
 
 ---
 
