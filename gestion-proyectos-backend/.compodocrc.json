@@ -1,0 +1,9 @@
+{
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts", "src/seed.ts"],
+  "theme": "default",
+  "name": "Gestión de Proyectos - Backend",
+  "hideGenerator": true,
+  "disableCoverage": false,
+  "output": "documentation"
+}
