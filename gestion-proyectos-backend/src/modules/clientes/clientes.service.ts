@@ -9,6 +9,7 @@ import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
 import { EstadoCliente } from '../../common/enums/estado.enum';
 import { Cliente } from './entities/clientes.entity';
+import { ContactoCliente } from './entities/contacto-cliente.entity';
 
 @Injectable()
 export class ClientesService {
@@ -37,8 +38,21 @@ export class ClientesService {
   }
 
   async create(dto: CreateClienteDto): Promise<Cliente> {
-    const cliente = this.clientesRepo.create(dto);
-    return this.clientesRepo.save(cliente);
+    const { contactos, ...clienteData } = dto;
+    const cliente = this.clientesRepo.create(clienteData);
+    const savedCliente = await this.clientesRepo.save(cliente);
+    if (contactos?.length) {
+      const contactosRepo =
+        this.clientesRepo.manager.getRepository(ContactoCliente);
+      const contactosEntities = contactos.map((c) =>
+        contactosRepo.create({
+          ...c,
+          clienteId: savedCliente.id,
+        }),
+      );
+      await contactosRepo.save(contactosEntities);
+    }
+    return this.findOne(savedCliente.id);
   }
 
   async update(id: number, dto: UpdateClienteDto): Promise<Cliente> {

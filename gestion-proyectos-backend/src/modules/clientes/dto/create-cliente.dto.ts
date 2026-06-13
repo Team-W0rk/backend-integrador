@@ -1,9 +1,21 @@
-import { IsNotEmpty, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateContactoClienteDto } from './CreateContactoClienteDt';
 
 export class CreateClienteDto {
-  @ApiProperty({ example: 'Empresa ABC', description: 'Nombre del cliente' })
   @IsString()
   @IsNotEmpty()
   nombre: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateContactoClienteDto)
+  contactos?: CreateContactoClienteDto[];
 }
