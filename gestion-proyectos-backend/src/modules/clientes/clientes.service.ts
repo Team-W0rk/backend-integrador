@@ -19,7 +19,9 @@ export class ClientesService {
   ) {}
 
   async findAll(): Promise<Cliente[]> {
-    return this.clientesRepo.find({ relations: ['proyectos'] });
+    return this.clientesRepo.find({
+      relations: ['proyectos', 'contactos'],
+    });
   }
 
   async findActivos(): Promise<Cliente[]> {
@@ -31,9 +33,11 @@ export class ClientesService {
   async findOne(id: number): Promise<Cliente> {
     const cliente = await this.clientesRepo.findOne({
       where: { id },
-      relations: ['proyectos'],
+      relations: ['proyectos', 'contactos'],
     });
-    if (!cliente) throw new NotFoundException(`Cliente ${id} no encontrado`);
+    if (!cliente) {
+      throw new NotFoundException(`Cliente ${id} no encontrado`);
+    }
     return cliente;
   }
 
@@ -56,9 +60,24 @@ export class ClientesService {
   }
 
   async update(id: number, dto: UpdateClienteDto): Promise<Cliente> {
+    const { contactos, ...clienteData } = dto;
     const cliente = await this.findOne(id);
-    Object.assign(cliente, dto);
-    return this.clientesRepo.save(cliente);
+    Object.assign(cliente, clienteData);
+    await this.clientesRepo.save(cliente);
+    if (contactos) {
+      const contactosRepo =
+        this.clientesRepo.manager.getRepository(ContactoCliente);
+
+      await contactosRepo.delete({ clienteId: id });
+      const nuevosContactos = contactos.map((c) =>
+        contactosRepo.create({
+          ...c,
+          clienteId: id,
+        }),
+      );
+      await contactosRepo.save(nuevosContactos);
+    }
+    return this.findOne(id);
   }
 
   async darBaja(id: number): Promise<Cliente> {
