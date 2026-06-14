@@ -10,13 +10,14 @@ Desarrollado con **NestJS**, **TypeORM** y **PostgreSQL**.
 
 | Tecnología | Versión | Uso |
 |---|---|---|
-| NestJS | ^10 | Framework principal |
+| NestJS | ^11 | Framework principal |
 | TypeORM | ^0.3 | ORM para base de datos |
 | PostgreSQL | 14+ | Base de datos |
 | JWT + Passport | — | Autenticación |
-| Swagger | ^7 | Documentación de API |
+| Swagger | ^11 | Documentación de API |
 | Compodoc | ^1.1 | Documentación del código |
-| class-validator | ^0.14 | Validación de DTOs |
+| PM2 | — | Gestor de procesos en producción |
+| class-validator | ^0.15 | Validación de DTOs |
 
 ---
 
@@ -25,7 +26,7 @@ Desarrollado con **NestJS**, **TypeORM** y **PostgreSQL**.
 - Node.js 18 o superior
 - PostgreSQL
 - npm
-
+- PM2 (`npm install -g pm2`)
 ---
 
 ## Instalación y configuración
@@ -71,39 +72,24 @@ npm run start:dev
 
 El servidor queda disponible en `http://localhost:3000`.
 
-## Ejecutar con PM2
-
+## Ejecutar con PM2 (producción)
+ 
 ```bash
-npm install
-cp .env.example .env
-
+# Compilar
 npm run build
-npm run start:pm2
+ 
+# Crear carpeta de logs
+mkdir logs
+ 
+# Levantar con PM2
+pm2 start ecosystem.config.js
+ 
+# Ver estado
+pm2 status
+ 
+# Ver logs
+pm2 logs gestion-proyectos-backend
 ```
-
-## Acceso
-
-http://localhost
-http://localhost/docs
-
----
-
-## Primer uso
-
-Al levantar el servidor por primera vez, TypeORM crea todas las tablas automáticamente gracias a `synchronize: true`.
-
-Para crear el usuario administrador inicial, usar la ruta pública `POST /api/usuarios`:
-
-```json
-{
-  "username": "admin",
-  "password": "admin123",
-  "rol": "admin"
-}
-```
-
-Luego iniciar sesión en `POST /api/auth/login` para obtener el token JWT y usarlo en el resto de los endpoints.
-
 ---
 
 ## Documentación
@@ -222,6 +208,17 @@ src/
 | `usuario` | Acceso estándar. Puede crear y modificar, pero no dar de baja ni eliminar. |
 
 ---
+
+## Funcionalidades adicionales implementadas
+ 
+- **Historial de cambios** — cada modificación queda registrada con usuario y fecha
+- **Roles** — `admin` y `usuario` con restricciones en operaciones sensibles
+- **Búsqueda avanzada** — filtros por nombre, estado y cliente con paginación y ordenamiento
+- **Exportación CSV** — descarga de proyectos y clientes en formato CSV
+- **Estadísticas** — métricas de proyectos, tareas y clientes
+- **Fecha de finalización** — cada proyecto puede tener fecha objetivo con indicador de retraso
+- **Contactos de clientes** — teléfonos y emails asociados a cada cliente
+- **Metas intermedias** — hitos dentro de un proyecto con tareas asociadas
 
 ## Scripts disponibles
 
