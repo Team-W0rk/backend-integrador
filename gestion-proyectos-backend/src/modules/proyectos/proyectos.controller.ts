@@ -19,6 +19,9 @@ import { ProyectosService } from './proyectos.service.js';
 import { CreateProyectoDto } from './dto/create-proyecto.dto.js';
 import { UpdateProyectoDto } from './dto/update-proyecto.dto.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorators.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { RolUsuario } from '../../common/enums/estado.enum.js';
 
 @ApiTags('Proyectos')
 @ApiBearerAuth('JWT')
@@ -63,6 +66,8 @@ export class ProyectosController {
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(RolUsuario.ADMIN)
   @ApiOperation({ summary: 'Dar de baja un proyecto' })
   @ApiResponse({
     status: 200,
